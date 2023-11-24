@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Subir y Visualizar PDF</title>
+    <!-- Agrega el enlace a SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h2>Subir y Visualizar PDF</h2>
+    <form id="uploadForm" action="upload.php" method="post" enctype="multipart/form-data">
+        <label for="pdfFile">Selecciona un archivo PDF:</label>
+        <input type="file" name="pdfFile" id="pdfFile" accept=".pdf" required>
+        <br>
+        <input type="submit" value="Subir PDF">
+    </form>
+
+    <div id="pdfContainer" style="display: none;">
+        <iframe id="pdfViewer" width="800" height="600" frameborder="0"></iframe>
+    </div>
+
+    <br>
+
+    <a href="browse_pdfs.php">Buscar y Visualizar PDFs</a>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+
+            fetch("upload.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: data.message,
+                    }).then(() => {
+                        // Mostrar el contenedor del visor de PDF y cargar el PDF
+                        document.getElementById("pdfContainer").style.display = "block";
+                        document.getElementById("pdfViewer").src = 'uploads/' + data.filename;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
